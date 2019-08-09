@@ -46,7 +46,7 @@ String EditorImportPlugin::get_visible_name() const {
 
 void EditorImportPlugin::get_recognized_extensions(List<String> *p_extensions) const {
 	ERR_FAIL_COND(!(get_script_instance() && get_script_instance()->has_method("get_recognized_extensions")));
-	Array extensions = get_script_instance()->call("get_recognized_extensions");
+	const Array &extensions = get_script_instance()->call("get_recognized_extensions");
 	for (int i = 0; i < extensions.size(); i++) {
 		p_extensions->push_back(extensions[i]);
 	}
@@ -92,9 +92,9 @@ void EditorImportPlugin::get_import_options(List<ResourceImporter::ImportOption>
 	Array needed;
 	needed.push_back("name");
 	needed.push_back("default_value");
-	Array options = get_script_instance()->call("get_import_options", p_preset);
+	const Array &options = get_script_instance()->call("get_import_options", p_preset);
 	for (int i = 0; i < options.size(); i++) {
-		Dictionary d = options[i];
+		const Dictionary &d = options[i];
 		ERR_FAIL_COND(!d.has_all(needed));
 		String name = d["name"];
 		Variant default_value = d["default_value"];

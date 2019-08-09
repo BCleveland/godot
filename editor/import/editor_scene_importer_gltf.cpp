@@ -177,11 +177,11 @@ String EditorSceneImporterGLTF::_gen_unique_name(GLTFState &state, const String 
 Error EditorSceneImporterGLTF::_parse_scenes(GLTFState &state) {
 
 	ERR_FAIL_COND_V(!state.json.has("scenes"), ERR_FILE_CORRUPT);
-	Array scenes = state.json["scenes"];
+	const Array &scenes = state.json["scenes"];
 	for (int i = 0; i < 1; i++) { //only first scene is imported
-		Dictionary s = scenes[i];
+		const Dictionary &s = scenes[i];
 		ERR_FAIL_COND_V(!s.has("nodes"), ERR_UNAVAILABLE);
-		Array nodes = s["nodes"];
+		const Array &nodes = s["nodes"];
 		for (int j = 0; j < nodes.size(); j++) {
 			state.root_nodes.push_back(nodes[j]);
 		}
@@ -197,11 +197,11 @@ Error EditorSceneImporterGLTF::_parse_scenes(GLTFState &state) {
 Error EditorSceneImporterGLTF::_parse_nodes(GLTFState &state) {
 
 	ERR_FAIL_COND_V(!state.json.has("nodes"), ERR_FILE_CORRUPT);
-	Array nodes = state.json["nodes"];
+	const Array &nodes = state.json["nodes"];
 	for (int i = 0; i < nodes.size(); i++) {
 
 		GLTFNode *node = memnew(GLTFNode);
-		Dictionary n = nodes[i];
+		const Dictionary &n = nodes[i];
 
 		if (n.has("name")) {
 			node->name = n["name"];
@@ -242,7 +242,7 @@ Error EditorSceneImporterGLTF::_parse_nodes(GLTFState &state) {
 		}
 
 		if (n.has("children")) {
-			Array children = n["children"];
+			const Array &children = n["children"];
 			for (int j = 0; j < children.size(); j++) {
 				node->children.push_back(children[j]);
 			}
@@ -292,14 +292,14 @@ Error EditorSceneImporterGLTF::_parse_buffers(GLTFState &state, const String &p_
 	if (!state.json.has("buffers"))
 		return OK;
 
-	Array buffers = state.json["buffers"];
+	const Array &buffers = state.json["buffers"];
 	for (int i = 0; i < buffers.size(); i++) {
 
 		if (i == 0 && state.glb_data.size()) {
 			state.buffers.push_back(state.glb_data);
 
 		} else {
-			Dictionary buffer = buffers[i];
+			const Dictionary &buffer = buffers[i];
 			if (buffer.has("uri")) {
 
 				Vector<uint8_t> buffer_data;
@@ -331,10 +331,10 @@ Error EditorSceneImporterGLTF::_parse_buffers(GLTFState &state, const String &p_
 Error EditorSceneImporterGLTF::_parse_buffer_views(GLTFState &state) {
 
 	ERR_FAIL_COND_V(!state.json.has("bufferViews"), ERR_FILE_CORRUPT);
-	Array buffers = state.json["bufferViews"];
+	const Array &buffers = state.json["bufferViews"];
 	for (int i = 0; i < buffers.size(); i++) {
 
-		Dictionary d = buffers[i];
+		const Dictionary &d = buffers[i];
 
 		GLTFBufferView buffer_view;
 
@@ -389,10 +389,10 @@ EditorSceneImporterGLTF::GLTFType EditorSceneImporterGLTF::_get_type_from_str(co
 Error EditorSceneImporterGLTF::_parse_accessors(GLTFState &state) {
 
 	ERR_FAIL_COND_V(!state.json.has("accessors"), ERR_FILE_CORRUPT);
-	Array accessors = state.json["accessors"];
+	const Array &accessors = state.json["accessors"];
 	for (int i = 0; i < accessors.size(); i++) {
 
-		Dictionary d = accessors[i];
+		const Dictionary &d = accessors[i];
 
 		GLTFAccessor accessor;
 
@@ -422,12 +422,12 @@ Error EditorSceneImporterGLTF::_parse_accessors(GLTFState &state) {
 		if (d.has("sparse")) {
 			//eeh..
 
-			Dictionary s = d["sparse"];
+			const Dictionary &s = d["sparse"];
 
 			ERR_FAIL_COND_V(!d.has("count"), ERR_PARSE_ERROR);
 			accessor.sparse_count = d["count"];
 			ERR_FAIL_COND_V(!d.has("indices"), ERR_PARSE_ERROR);
-			Dictionary si = d["indices"];
+			const Dictionary &si = d["indices"];
 
 			ERR_FAIL_COND_V(!si.has("bufferView"), ERR_PARSE_ERROR);
 			accessor.sparse_indices_buffer_view = si["bufferView"];
@@ -439,7 +439,7 @@ Error EditorSceneImporterGLTF::_parse_accessors(GLTFState &state) {
 			}
 
 			ERR_FAIL_COND_V(!d.has("values"), ERR_PARSE_ERROR);
-			Dictionary sv = d["values"];
+			const Dictionary &sv = d["values"];
 
 			ERR_FAIL_COND_V(!sv.has("bufferView"), ERR_PARSE_ERROR);
 			accessor.sparse_values_buffer_view = sv["bufferView"];
@@ -865,7 +865,7 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 		ERR_FAIL_COND_V(!d.has("primitives"), ERR_PARSE_ERROR);
 
 		Array primitives = d["primitives"];
-		Dictionary extras = d.has("extras") ? (Dictionary)d["extras"] : Dictionary();
+		Dictionary &extras = d.has("extras") ? (Dictionary)d["extras"] : Dictionary();
 
 		for (int j = 0; j < primitives.size(); j++) {
 
@@ -1002,14 +1002,14 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 			//blend shapes
 			if (p.has("targets")) {
 				print_verbose("glTF: Mesh has targets");
-				Array targets = p["targets"];
+				const Array &targets = p["targets"];
 
 				//ideally BLEND_SHAPE_MODE_RELATIVE since gltf2 stores in displacement
 				//but it could require a larger refactor?
 				mesh.mesh->set_blend_shape_mode(Mesh::BLEND_SHAPE_MODE_NORMALIZED);
 
 				if (j == 0) {
-					Array target_names = extras.has("targetNames") ? (Array)extras["targetNames"] : Array();
+					const Array &target_names = extras.has("targetNames") ? (Array)extras["targetNames"] : Array();
 					for (int k = 0; k < targets.size(); k++) {
 						String name = k < target_names.size() ? (String)target_names[k] : String("morph_") + itos(k);
 						mesh.mesh->add_blend_shape(name);
@@ -1018,7 +1018,7 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 
 				for (int k = 0; k < targets.size(); k++) {
 
-					Dictionary t = targets[k];
+					const Dictionary &t = targets[k];
 
 					Array array_copy;
 					array_copy.resize(Mesh::ARRAY_MAX);
@@ -1136,7 +1136,7 @@ Error EditorSceneImporterGLTF::_parse_meshes(GLTFState &state) {
 		}
 
 		if (d.has("weights")) {
-			Array weights = d["weights"];
+			const Array &weights = d["weights"];
 			ERR_FAIL_COND_V(mesh.mesh->get_blend_shape_count() != weights.size(), ERR_PARSE_ERROR);
 			mesh.blend_weights.resize(weights.size());
 			for (int j = 0; j < weights.size(); j++) {
@@ -1157,10 +1157,10 @@ Error EditorSceneImporterGLTF::_parse_images(GLTFState &state, const String &p_b
 	if (!state.json.has("images"))
 		return OK;
 
-	Array images = state.json["images"];
+	const Array &images = state.json["images"];
 	for (int i = 0; i < images.size(); i++) {
 
-		Dictionary d = images[i];
+		const Dictionary &d = images[i];
 
 		String mimetype;
 		if (d.has("mimeType")) {
@@ -1249,10 +1249,10 @@ Error EditorSceneImporterGLTF::_parse_textures(GLTFState &state) {
 	if (!state.json.has("textures"))
 		return OK;
 
-	Array textures = state.json["textures"];
+	const Array &textures = state.json["textures"];
 	for (int i = 0; i < textures.size(); i++) {
 
-		Dictionary d = textures[i];
+		const Dictionary &d = textures[i];
 
 		ERR_FAIL_COND_V(!d.has("source"), ERR_PARSE_ERROR);
 
@@ -1278,10 +1278,10 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 	if (!state.json.has("materials"))
 		return OK;
 
-	Array materials = state.json["materials"];
+	const Array &materials = state.json["materials"];
 	for (int i = 0; i < materials.size(); i++) {
 
-		Dictionary d = materials[i];
+		const Dictionary &d = materials[i];
 
 		Ref<SpatialMaterial> material;
 		material.instance();
@@ -1291,9 +1291,9 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 
 		if (d.has("pbrMetallicRoughness")) {
 
-			Dictionary mr = d["pbrMetallicRoughness"];
+			const Dictionary &mr = d["pbrMetallicRoughness"];
 			if (mr.has("baseColorFactor")) {
-				Array arr = mr["baseColorFactor"];
+				const Array &arr = mr["baseColorFactor"];
 				ERR_FAIL_COND_V(arr.size() != 4, ERR_PARSE_ERROR);
 				Color c = Color(arr[0], arr[1], arr[2], arr[3]).to_srgb();
 
@@ -1301,7 +1301,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 			}
 
 			if (mr.has("baseColorTexture")) {
-				Dictionary bct = mr["baseColorTexture"];
+				const Dictionary &bct = mr["baseColorTexture"];
 				if (bct.has("index")) {
 					material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, _get_texture(state, bct["index"]));
 				}
@@ -1323,7 +1323,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 			}
 
 			if (mr.has("metallicRoughnessTexture")) {
-				Dictionary bct = mr["metallicRoughnessTexture"];
+				const Dictionary &bct = mr["metallicRoughnessTexture"];
 				if (bct.has("index")) {
 					Ref<Texture> t = _get_texture(state, bct["index"]);
 					material->set_texture(SpatialMaterial::TEXTURE_METALLIC, t);
@@ -1341,7 +1341,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 		}
 
 		if (d.has("normalTexture")) {
-			Dictionary bct = d["normalTexture"];
+			const Dictionary &bct = d["normalTexture"];
 			if (bct.has("index")) {
 				material->set_texture(SpatialMaterial::TEXTURE_NORMAL, _get_texture(state, bct["index"]));
 				material->set_feature(SpatialMaterial::FEATURE_NORMAL_MAPPING, true);
@@ -1351,7 +1351,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 			}
 		}
 		if (d.has("occlusionTexture")) {
-			Dictionary bct = d["occlusionTexture"];
+			const Dictionary &bct = d["occlusionTexture"];
 			if (bct.has("index")) {
 				material->set_texture(SpatialMaterial::TEXTURE_AMBIENT_OCCLUSION, _get_texture(state, bct["index"]));
 				material->set_ao_texture_channel(SpatialMaterial::TEXTURE_CHANNEL_RED);
@@ -1360,7 +1360,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 		}
 
 		if (d.has("emissiveFactor")) {
-			Array arr = d["emissiveFactor"];
+			const Array &arr = d["emissiveFactor"];
 			ERR_FAIL_COND_V(arr.size() != 3, ERR_PARSE_ERROR);
 			Color c = Color(arr[0], arr[1], arr[2]).to_srgb();
 			material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
@@ -1369,7 +1369,7 @@ Error EditorSceneImporterGLTF::_parse_materials(GLTFState &state) {
 		}
 
 		if (d.has("emissiveTexture")) {
-			Dictionary bct = d["emissiveTexture"];
+			const Dictionary &bct = d["emissiveTexture"];
 			if (bct.has("index")) {
 				material->set_texture(SpatialMaterial::TEXTURE_EMISSION, _get_texture(state, bct["index"]));
 				material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
@@ -1404,16 +1404,16 @@ Error EditorSceneImporterGLTF::_parse_skins(GLTFState &state) {
 	if (!state.json.has("skins"))
 		return OK;
 
-	Array skins = state.json["skins"];
+	const Array &skins = state.json["skins"];
 	for (int i = 0; i < skins.size(); i++) {
 
-		Dictionary d = skins[i];
+		const Dictionary &d = skins[i];
 
 		GLTFSkin skin;
 
 		ERR_FAIL_COND_V(!d.has("joints"), ERR_PARSE_ERROR);
 
-		Array joints = d["joints"];
+		const Array &joints = d["joints"];
 		Vector<Transform> bind_matrices;
 
 		if (d.has("inverseBindMatrices")) {
@@ -1510,11 +1510,11 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
 	if (!state.json.has("cameras"))
 		return OK;
 
-	Array cameras = state.json["cameras"];
+	const Array &cameras = state.json["cameras"];
 
 	for (int i = 0; i < cameras.size(); i++) {
 
-		Dictionary d = cameras[i];
+		const Dictionary &d = cameras[i];
 
 		GLTFCamera camera;
 		ERR_FAIL_COND_V(!d.has("type"), ERR_PARSE_ERROR);
@@ -1523,7 +1523,7 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
 
 			camera.perspective = false;
 			if (d.has("orthographic")) {
-				Dictionary og = d["orthographic"];
+				const Dictionary &og = d["orthographic"];
 				camera.fov_size = og["ymag"];
 				camera.zfar = og["zfar"];
 				camera.znear = og["znear"];
@@ -1535,7 +1535,7 @@ Error EditorSceneImporterGLTF::_parse_cameras(GLTFState &state) {
 
 			camera.perspective = true;
 			if (d.has("perspective")) {
-				Dictionary ppt = d["perspective"];
+				const Dictionary &ppt = d["perspective"];
 				// GLTF spec is in radians, Godot's camera is in degrees.
 				camera.fov_size = (double)ppt["yfov"] * 180.0 / Math_PI;
 				camera.zfar = ppt["zfar"];
@@ -1561,19 +1561,19 @@ Error EditorSceneImporterGLTF::_parse_animations(GLTFState &state) {
 	if (!state.json.has("animations"))
 		return OK;
 
-	Array animations = state.json["animations"];
+	const Array &animations = state.json["animations"];
 
 	for (int i = 0; i < animations.size(); i++) {
 
-		Dictionary d = animations[i];
+		const Dictionary &d = animations[i];
 
 		GLTFAnimation animation;
 
 		if (!d.has("channels") || !d.has("samplers"))
 			continue;
 
-		Array channels = d["channels"];
-		Array samplers = d["samplers"];
+		const Array &channels = d["channels"];
+		const Array &samplers = d["samplers"];
 
 		if (d.has("name")) {
 			animation.name = d["name"];
@@ -1581,11 +1581,11 @@ Error EditorSceneImporterGLTF::_parse_animations(GLTFState &state) {
 
 		for (int j = 0; j < channels.size(); j++) {
 
-			Dictionary c = channels[j];
+			const Dictionary &c = channels[j];
 			if (!c.has("target"))
 				continue;
 
-			Dictionary t = c["target"];
+			const Dictionary &t = c["target"];
 			if (!t.has("node") || !t.has("path")) {
 				continue;
 			}
@@ -1607,7 +1607,7 @@ Error EditorSceneImporterGLTF::_parse_animations(GLTFState &state) {
 
 			track = &animation.tracks[node];
 
-			Dictionary s = samplers[sampler];
+			const Dictionary &s = samplers[sampler];
 
 			ERR_FAIL_COND_V(!s.has("input"), ERR_PARSE_ERROR);
 			ERR_FAIL_COND_V(!s.has("output"), ERR_PARSE_ERROR);
@@ -2193,7 +2193,7 @@ Node *EditorSceneImporterGLTF::import_scene(const String &p_path, uint32_t p_fla
 
 	ERR_FAIL_COND_V(!state.json.has("asset"), NULL);
 
-	Dictionary asset = state.json["asset"];
+	const Dictionary &asset = state.json["asset"];
 
 	ERR_FAIL_COND_V(!asset.has("version"), NULL);
 

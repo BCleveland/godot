@@ -60,7 +60,7 @@ uint32_t EditorSceneImporter::get_import_flags() const {
 void EditorSceneImporter::get_extensions(List<String> *r_extensions) const {
 
 	if (get_script_instance()) {
-		Array arr = get_script_instance()->call("_get_extensions");
+		const Array &arr = get_script_instance()->call("_get_extensions");
 		for (int i = 0; i < arr.size(); i++) {
 			r_extensions->push_back(arr[i]);
 		}

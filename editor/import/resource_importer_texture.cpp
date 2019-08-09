@@ -570,7 +570,7 @@ String ResourceImporterTexture::get_import_settings_string() const {
 bool ResourceImporterTexture::are_import_settings_valid(const String &p_path) const {
 
 	//will become invalid if formats are missing to import
-	Dictionary metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);
+	const Dictionary &metadata = ResourceFormatImporter::get_singleton()->get_resource_metadata(p_path);
 
 	if (!metadata.has("vram_texture")) {
 		return false;
